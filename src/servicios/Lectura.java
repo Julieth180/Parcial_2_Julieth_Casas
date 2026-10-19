@@ -16,9 +16,10 @@ public class Lectura {
     }
 
     /** Usa ValidadorLectura como dependencia puntual. */
+    // TODO: implementar
     public boolean esValida(String tipo, ValidadorLectura validador) {
-        // TODO: implementar
-        return false;
+        return validador.esValida(tipo, this.valor);
+
     }
 
     public int getValor() { return valor; }

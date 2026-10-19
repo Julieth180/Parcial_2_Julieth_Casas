@@ -25,7 +25,27 @@ public class NodoIoT {
      */
     public Sensor agregarSensor(String tipo, String idSensor, int capacidad) {
         // TODO: implementar (polimorfismo + composición)
-        return null;
+        if (tipo == null) {
+            return null;
+        }
+
+        Sensor nuevoSensor = null;
+        switch (tipo.toUpperCase()) {
+            case "TEMPERATURA":
+                nuevoSensor = new SensorTemperatura(idSensor, capacidad);
+                break;
+            case "HUMEDAD":
+                nuevoSensor = new SensorHumedad(idSensor, capacidad);
+                break;
+            case "LUMINOSIDAD":
+                nuevoSensor = new SensorLuminosidad(idSensor, capacidad);
+                break;
+            default:
+                return null;
+        }
+
+        sensores.add(nuevoSensor);
+        return nuevoSensor;
     }
 
     /**
@@ -34,7 +54,20 @@ public class NodoIoT {
      */
     public double promedioTemperatura() {
         // TODO: implementar
-        return 0;
+        double suma = 0;
+        int contador = 0;
+
+        for (Sensor s : sensores) {
+            if (s instanceof SensorTemperatura) {
+                suma += s.promedioUltimasLecturas();
+                contador++;
+            }
+        }
+
+        if (contador == 0) {
+            return 0;
+        }
+        return suma / contador;
     }
 
     /**
@@ -42,9 +75,28 @@ public class NodoIoT {
      */
     public List<Sensor> sensoresFueraDeRango() {
         // TODO: implementar
-        return new ArrayList<>();
-    }
+        List<Sensor> resultado = new ArrayList<>();
 
-    public String getId() { return id; }
-    public ArrayList<Sensor> getSensores() { return sensores; }
+        for (Sensor s : sensores) {
+            if (s.getCantidadLecturas() > 0) {
+                int[] lecturas = s.getUltimasLecturas();
+                // Si el arreglo está lleno, la última posición con datos depende del buffer circular,
+                // pero si el buffer no se ha llenado o si tomamos la posición anterior al índice actual:
+                int posUltima = (s.getIndiceActual() == 0) ? lecturas.length - 1 : s.getIndiceActual() - 1;
+                int ultimaLectura = lecturas[posUltima];
+
+                if (s.fueraDeRango(ultimaLectura)) {
+                    resultado.add(s);
+                }
+            }
+        }
+
+        return resultado;
+    }
+    public ArrayList<Sensor> getSensores() {
+        return sensores;
+    }
+    public String getId() {
+        return id;
+    }
 }
